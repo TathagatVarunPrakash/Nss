@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSS IIT Delhi — Find Your Posting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEAE0;
+    --paper-card:#F6F4EC;
+    --line:#C9C1A8;
+    --ink:#232F3B;
+    --ink-soft:#5B6672;
+    --stamp:#AC3A2C;
+    --marigold:#D9962F;
+    --leaf:#4C7A55;
+    --shadow: 0 1px 0 rgba(35,47,59,0.06), 0 8px 24px rgba(35,47,59,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(35,47,59,0.035) 28px),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Libre Franklin', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 64px;
+  }
+  .sheet{
+    width:100%;
+    max-width:640px;
+  }
+  .letterhead{
+    text-align:center;
+    padding-bottom:18px;
+    margin-bottom:22px;
+    border-bottom:2px solid var(--ink);
+  }
+  .letterhead .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:2.5px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .letterhead h1{
+    font-family:'Special Elite', cursive;
+    font-weight:400;
+    font-size:clamp(24px, 5vw, 34px);
+    margin:6px 0 4px;
+    letter-spacing:0.5px;
+  }
+  .letterhead p{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+
+  /* ---- form card ---- */
+  .card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    padding:30px 26px 26px;
+    position:relative;
+  }
+  .card::before{
+    content:'';
+    position:absolute;
+    top:14px; left:14px; right:14px; bottom:14px;
+    border:1px dashed var(--line);
+    pointer-events:none;
+    border-radius:2px;
+  }
+  .progress-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:18px;
+    letter-spacing:0.5px;
+  }
+  .progress-bar{
+    height:4px;
+    background:var(--line);
+    border-radius:2px;
+    overflow:hidden;
+    margin-bottom:22px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--stamp);
+    width:0%;
+    transition:width .4s ease;
+  }
+  .q-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--stamp);
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .q-text{
+    font-size:20px;
+    line-height:1.4;
+    font-weight:700;
+    margin:0 0 6px;
+  }
+  .q-sub{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:0 0 22px;
+  }
+
+  /* stars */
+  .stars{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin:26px 0 8px;
+  }
+  .star{
+    font-size:38px;
+    line-height:1;
+    cursor:pointer;
+    color:var(--line);
+    -webkit-text-stroke:1px var(--ink-soft);
+    transition:transform .15s ease, color .15s ease;
+    user-select:none;
+  }
+  .star:hover{ transform:scale(1.12); }
+  .star.filled{ color:var(--marigold); -webkit-text-stroke:1px var(--marigold); }
+  .star-caption{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    min-height:16px;
+    margin-bottom:6px;
+  }
+
+  /* choice list */
+  .choice-list{ display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+  .choice{
+    border:1.5px solid var(--line);
+    background:#fff;
+    border-radius:3px;
+    padding:13px 16px;
+    font-size:14.5px;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .choice:hover{ border-color:var(--ink-soft); }
+  .choice.selected{ border-color:var(--stamp); background:#FBEFEA; }
+  .choice .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--stamp);
+    font-weight:600;
+    flex-shrink:0;
+    padding-top:1px;
+  }
+
+  /* nav buttons */
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:28px;
+  }
+  button{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    border:1.5px solid var(--ink);
+    background:transparent;
+    color:var(--ink);
+    padding:11px 18px;
+    border-radius:2px;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, opacity .15s ease;
+  }
+  button:hover:not(:disabled){ background:var(--ink); color:var(--paper-card); }
+  button:disabled{ opacity:0.35; cursor:not-allowed; }
+  button.primary{ background:var(--ink); color:var(--paper-card); }
+  button.primary:hover:not(:disabled){ background:var(--stamp); border-color:var(--stamp); }
+  .ghost-btn{ border-color:transparent; color:var(--ink-soft); }
+  .ghost-btn:hover{ background:transparent; color:var(--ink); text-decoration:underline; }
+
+  /* welcome + intro */
+  .intro p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); }
+  .intro .start-row{ text-align:center; margin-top:26px; }
+  .intro .start-row button{ padding:14px 30px; font-size:13px; }
+  .domain-chips{
+    display:flex; flex-wrap:wrap; gap:7px; margin:18px 0 4px; justify-content:center;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:5px 11px;
+    color:var(--ink-soft);
+  }
+
+  /* results */
+  .stamp-wrap{
+    display:flex; justify-content:center; margin:6px 0 22px;
+  }
+  .stamp-badge{
+    width:150px; height:150px;
+    border-radius:50%;
+    border:4px double var(--stamp);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    color:var(--stamp);
+    font-family:'Special Elite', cursive;
+    transform:rotate(-8deg) scale(0.4);
+    opacity:0;
+    animation:stampIn .5s cubic-bezier(.2,1.5,.4,1) forwards;
+    animation-delay:.15s;
+    padding:10px;
+  }
+  .stamp-badge span{ display:block; }
+  .stamp-badge .s1{ font-size:10px; letter-spacing:2px; }
+  .stamp-badge .s2{ font-size:15px; margin:2px 0; line-height:1.15; }
+  .stamp-badge .s3{ font-size:9px; letter-spacing:1.5px; }
+  @keyframes stampIn{
+    0%{ transform:rotate(-8deg) scale(0.4); opacity:0; }
+    60%{ transform:rotate(-8deg) scale(1.08); opacity:1; }
+    100%{ transform:rotate(-8deg) scale(1); opacity:1; }
+  }
+  .result-heading{
+    text-align:center;
+    font-size:13px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:1px;
+    margin-bottom:2px;
+  }
+  .result-title{
+    text-align:center;
+    font-size:26px;
+    font-weight:800;
+    margin:0 0 4px;
+  }
+  .result-desc{
+    text-align:center;
+    font-size:14px;
+    color:var(--ink-soft);
+    max-width:440px;
+    margin:0 auto 22px;
+    line-height:1.6;
+  }
+  .project-card{
+    border:1.5px solid var(--line);
+    border-left:4px solid var(--stamp);
+    background:#fff;
+    border-radius:2px;
+    padding:16px 18px;
+    margin-bottom:14px;
+  }
+  .project-card h3{ margin:0 0 6px; font-size:16px; }
+  .project-card p{ margin:0 0 8px; font-size:13.5px; color:var(--ink-soft); line-height:1.55; }
+  .project-card .contact{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--leaf);
+  }
+  .secondary-block{ margin-top:26px; }
+  .secondary-block .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .footer-note{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:30px;
+    line-height:1.6;
+  }
+  .retake-row{ text-align:center; margin-top:22px; }
+
+  @media (max-width:420px){
+    .card{ padding:24px 18px 20px; }
+    .star{ font-size:32px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="letterhead">
+    <div class="eyebrow">NSS · IIT Delhi</div>
+    <h1>Find Your Posting</h1>
+    <p>A placement form for first-years, disguised as a quiz.</p>
+  </div>
+
+  <div class="card" id="card">
+    <!-- content injected by JS -->
+  </div>
+
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+
+// 10 core domains, each scored by one star-rating question
+const DOMAINS = {
+  teaching: { name:"Teaching & Mentorship", color:"var(--stamp)" },
+  elder:    { name:"Elderly & Community Companionship" },
+  culture:  { name:"Culture & Livelihood" },
+  mental:   { name:"Mental Health & Wellbeing" },
+  climate:  { name:"Environment & Sustainability" },
+  health:   { name:"Health & Emergency Awareness" },
+  nutrition:{ name:"Hunger & Nutrition" },
+  rural:    { name:"Rural Development" },
+  rights:   { name:"Rights & Career Guidance" },
+  innovation:{ name:"Innovation for Social Good" }
+};
+
+const PROJECTS = {
+  teaching: {
+    heading:"Teaching & Mentorship",
+    desc:"NSS runs seven different teaching projects, each built around a different classroom and a different kind of student. Your answer to the next question decides which one fits you best.",
+    subs:{
+      prayatna:{ name:"Prayatna Teaching Project", desc:"Online STEM classes and workshops for underprivileged school students, run with Prayatna Excellence Centre, Gurgaon.", contact:"Contact your Secretary, NSS IITD" },
+      vidya:{ name:"VIDYA Teaching Project", desc:"On-campus classes in English, Maths, Science and Computers for children at the Kendriya Vidyalaya, IIT Delhi.", contact:"Aarush · Secretary, NSS IITD" },
+      munirka:{ name:"Munirka Teaching Project", desc:"Regular Maths, Science and English classes for children (Classes 4–12) from the Munirka slum community.", contact:"Omkar · 9322705421" },
+      bachpan:{ name:"Bachpan Teaching Project", desc:"One-to-one mentorship, on campus every evening, for the children of mess workers, guards and other staff.", contact:"Krish · 9352789093" },
+      jyoti:{ name:"JYOTI Teaching Project", desc:"Academic guidance, mentorship and scribe support for visually impaired students, with the National Association for the Blind.", contact:"Aditya Vikram · 8949248468" },
+      uttarakhand:{ name:"Uttarakhand Teaching Project", desc:"A summer trip to remote Uttarakhand to teach and mentor students preparing for boards and entrance exams.", contact:"Krish · 9352789093 / Arsh · 9116233062" },
+      samarpan:{ name:"SAMARPAN", desc:"Steady, discreet academic support for Afghan refugee children in India and displaced students in Afghanistan.", contact:"Dhanashri · 9172359762" }
+    }
+  },
+  elder: {
+    heading:"Old Age Home Project",
+    desc:"Regular visits to elderly residents (and, more recently, children in orphanages) — conversation, music, stories, and simply showing up.",
+    projects:[{ name:"Old Age Home Project", desc:"Weekend visits built around companionship: shared food, games, performances, and a safe space to talk.", contact:"Secretary, NSS IITD" }]
+  },
+  culture: {
+    heading:"Sanskar-riti",
+    desc:"A cultural project that turns heritage into livelihood — supporting women artisans while keeping Indian traditions alive on campus.",
+    projects:[{ name:"Sanskar-riti", desc:"Works with SHGs and women artisans (via Svatanya and others) on melas, festivals, and craft-based livelihoods.", contact:"Rudrika · 9079440290" }]
+  },
+  mental: {
+    heading:"Mental Health",
+    desc:"Awareness, resilience and reducing stigma — from campaigns to one-on-one care visits.",
+    projects:[{ name:"Mental Health", desc:"Runs campaigns like Million Minutes of Happiness, palliative care visits, and workshops on cyber wellness and self-worth.", contact:"Urja · Secretary, NSS IITD" }]
+  },
+  climate: {
+    heading:"Climate Crusade",
+    desc:"Practical sustainability — surveys, drives and workshops that nudge campus habits in a greener direction.",
+    projects:[{ name:"Climate Crusade", desc:"Runs carbon footprint surveys, clothes collection drives, and Mission LiFE-aligned sustainability workshops.", contact:"Secretary, NSS IITD" }]
+  },
+  health: {
+    heading:"Jeevan",
+    desc:"Hands-on public health work — blood camps, CPR training, and awareness on issues people don't always talk about.",
+    projects:[{ name:"Jeevan", desc:"Blood donation camps, health/Thalassemia checkups, CPR & first-aid training, and awareness on addiction and organ donation.", contact:"Himanshu · 7657933515 / Omkar · 9322705421" }]
+  },
+  nutrition: {
+    heading:"POSHAN",
+    desc:"High-impact, hands-on work against hunger — the kind of volunteering where you see the result the same day.",
+    projects:[{ name:"POSHAN", desc:"Meal-packing drives with RAHI NGO and the Robin Hood Army, reaching thousands in a single event.", contact:"Arsh Gautam · 9116233062" }]
+  },
+  rural: {
+    heading:"UBA (Unnat Bharat Abhiyan)",
+    desc:"Slow, structural village work — understanding a community deeply before trying to fix anything.",
+    projects:[{ name:"UBA", desc:"Long-term fieldwork in the adopted village of Khurrampur, on water, waste, organic farming and career awareness.", contact:"Badal · Secretary, NSS IITD" }]
+  },
+  rights: {
+    heading:"Project UDAYA",
+    desc:"Turning information into access — helping people claim what they're already entitled to.",
+    projects:[{ name:"Project UDAYA", desc:"Combines Know Your Rights (welfare schemes, legal aid) with Disha (career guidance) for underserved families.", contact:"Secretary, NSS IITD" }]
+  },
+  innovation: {
+    heading:"Project Navyukti",
+    desc:"For volunteers who'd rather prototype a fix than just raise awareness of the problem.",
+    projects:[{ name:"Project Navyukti", desc:"An engineering-led team that visits communities like Munirka Basti and builds practical, scalable solutions.", contact:"Secretary, NSS IITD" }]
+  }
+};
+
+const STAR_QUESTIONS = [
+  { key:"teaching",   text:"Helping a child finally understand something they'd been stuck on.", sub:"Think tutoring, mentoring, one-on-one attention." },
+  { key:"elder",      text:"Spending an afternoon just listening to an elderly person's stories.", sub:"No agenda, just company." },
+  { key:"culture",    text:"Running a mela stall so a woman artisan's craft actually sells.", sub:"Heritage, handicrafts, community pride." },
+  { key:"mental",     text:"Having an honest, unhurried conversation about stress and mental health.", sub:"Reducing stigma, one conversation at a time." },
+  { key:"climate",    text:"Tracking your carbon footprint, or running a clothes / plastic drive.", sub:"Everyday sustainability." },
+  { key:"health",     text:"Volunteering at a blood donation camp or CPR training session.", sub:"Practical, sometimes life-saving, public health work." },
+  { key:"nutrition",  text:"Packing meals that will feed hundreds of people by evening.", sub:"Fast, tangible, high-impact." },
+  { key:"rural",      text:"Sitting with villagers to actually understand a problem before 'fixing' it.", sub:"Slow trust-building, not a one-day visit." },
+  { key:"rights",     text:"Helping someone fill a scholarship or welfare-scheme form they didn't know existed.", sub:"Turning red tape into real access." },
+  { key:"innovation", text:"Prototyping an actual device or system to solve a community's problem.", sub:"Engineering meets empathy." }
+];
+
+const TEACHING_PICK = {
+  text:"If Teaching turns out to be your thing — which classroom pulls you in most?",
+  sub:"This decides which of the seven teaching projects we recommend.",
+  options:[
+    { key:"prayatna", tag:"ONLINE", label:"Structured online STEM classes for underprivileged school students" },
+    { key:"vidya", tag:"ON-CAMPUS", label:"Regular subjects at the Kendriya Vidyalaya, right here on campus" },
+    { key:"munirka", tag:"OFF-CAMPUS", label:"Classes for children of the Munirka slum community" },
+    { key:"bachpan", tag:"MENTORSHIP", label:"One-to-one mentoring for children of campus staff" },
+    { key:"jyoti", tag:"INCLUSION", label:"Teaching and scribing for visually impaired students" },
+    { key:"uttarakhand", tag:"TRAVEL", label:"A summer teaching trip to rural Uttarakhand" },
+    { key:"samarpan", tag:"DISCREET", label:"Quiet, steady support for Afghan refugee children" }
+  ]
+};
+
+const SWIPES = [
+  {
+    text:"Which pulls you in more?",
+    sub:"There's no wrong answer — just pick the gut reaction.",
+    optA:{ label:"A cause that needs urgent, one-time action — a blood camp, a donation drive.", bonus:["health","nutrition","climate"] },
+    optB:{ label:"A cause that needs a slow, steady relationship — weekly mentoring, repeat visits.", bonus:["teaching","elder","mental"] }
+  },
+  {
+    text:"And this one?",
+    sub:"",
+    optA:{ label:"Out in the field, talking to people directly.", bonus:["elder","rural","nutrition"] },
+    optB:{ label:"Behind the scenes — planning, designing, organizing.", bonus:["innovation","rights","culture"] }
+  }
+];
+
+/* ---------------- STATE ---------------- */
+let step = -1; // -1 = intro
+const totalSteps = STAR_QUESTIONS.length + 1 + SWIPES.length; // stars + teaching pick + swipes
+const answers = { stars:{}, teachingPick:null, swipes:[] };
+
+/* ---------------- RENDER ---------------- */
+const card = document.getElementById('card');
+
+function render(){
+  if(step === -1){ renderIntro(); return; }
+  if(step === totalSteps){ renderResults(); return; }
+
+  if(step < STAR_QUESTIONS.length){
+    renderStarQuestion(STAR_QUESTIONS[step], step);
+  } else if(step === STAR_QUESTIONS.length){
+    renderTeachingPick();
+  } else {
+    const swipeIndex = step - STAR_QUESTIONS.length - 1;
+    renderSwipe(SWIPES[swipeIndex], swipeIndex);
+  }
+}
+
+function renderIntro(){
+  card.innerHTML = `
+    <div class="intro">
+      <div class="q-label">Before you begin</div>
+      <p class="q-text" style="font-size:19px;">16 projects. 10 questions. One posting.</p>
+      <p>NSS IIT Delhi runs projects across education, health, environment, culture, mental health, rural
+      development and more. This form works like a real placement form — rate a few scenarios, make a
+      couple of quick calls, and we'll point you toward the domain (and the specific project) that fits
+      you best.</p>
+      <div class="domain-chips">
+        ${Object.values(DOMAINS).map(d=>`<div class="chip">${d.name}</div>`).join('')}
+      </div>
+      <div class="start-row">
+        <button class="primary" onclick="step=0; render();">Begin Form →</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStarQuestion(q, index){
+  const current = answers.stars[q.key] || 0;
+  updateProgress(index);
+  card.innerHTML = `
+    <div class="q-label">Rate your interest · 1–5</div>
+    <p class="q-text">${q.text}</p>
+    <p class="q-sub">${q.sub}</p>
+    <div class="stars" id="starRow">
+      ${[1,2,3,4,5].map(n=>`<span class="star ${n<=current?'filled':''}" data-n="${n}" onclick="setStar('${q.key}', ${n})" onmouseenter="previewStar(${n})" onmouseleave="resetStarPreview('${q.key}')">★</span>`).join('')}
+    </div>
+    <div class="star-caption" id="starCaption">${current ? captionFor(current) : 'tap a star'}</div>
+    ${navButtons(index, !!current)}
+  `;
+}
+
+function captionFor(n){
+  return ["not really me","mildly curious","genuinely interested","pretty excited","this is exactly it"][n-1];
+}
+function previewStar(n){
+  const stars = document.querySelectorAll('#starRow .star');
+  stars.forEach((s,i)=> s.classList.toggle('filled', i < n));
+  document.getElementById('starCaption').textContent = captionFor(n);
+}
+function resetStarPreview(key){
+  const current = answers.stars[key] || 0;
+  const stars = document.querySelectorAll('#starRow .star');
+  stars.forEach((s,i)=> s.classList.toggle('filled', i < current));
+  document.getElementById('starCaption').textContent = current ? captionFor(current) : 'tap a star';
+}
+function setStar(key, n){
+  answers.stars[key] = n;
+  render();
+}
+
+function renderTeachingPick(){
+  updateProgress(STAR_QUESTIONS.length);
+  card.innerHTML = `
+    <div class="q-label">One more detail</div>
+    <p class="q-text">${TEACHING_PICK.text}</p>
+    <p class="q-sub">${TEACHING_PICK.sub}</p>
+    <div class="choice-list">
+      ${TEACHING_PICK.options.map(o=>`
+        <div class="choice ${answers.teachingPick===o.key?'selected':''}" onclick="pickTeaching('${o.key}')">
+          <span class="tag">${o.tag}</span><span>${o.label}</span>
+        </div>
+      `).join('')}
+    </div>
+    ${navButtons(STAR_QUESTIONS.length, !!answers.teachingPick)}
+  `;
+}
+function pickTeaching(key){
+  answers.teachingPick = key;
+  render();
+}
+
+function renderSwipe(swipe, index){
+  const globalIndex = STAR_QUESTIONS.length + 1 + index;
+  updateProgress(globalIndex);
+  const chosen = answers.swipes[index];
+  card.innerHTML = `
+    <div class="q-label">Quick call</div>
+    <p class="q-text">${swipe.text}</p>
+    ${swipe.sub ? `<p class="q-sub">${swipe.sub}</p>` : '<div style="margin-bottom:22px;"></div>'}
+    <div class="choice-list">
+      <div class="choice ${chosen==='A'?'selected':''}" onclick="pickSwipe(${index},'A')"><span class="tag">A</span><span>${swipe.optA.label}</span></div>
+      <div class="choice ${chosen==='B'?'selected':''}" onclick="pickSwipe(${index},'B')"><span class="tag">B</span><span>${swipe.optB.label}</span></div>
+    </div>
+    ${navButtons(globalIndex, !!chosen)}
+  `;
+}
+function pickSwipe(index, side){
+  answers.swipes[index] = side;
+  render();
+}
+
+function updateProgress(index){
+  // called before innerHTML is set on the same render, so we just compute text
+  const pct = Math.round(((index) / totalSteps) * 100);
+  window.__progressHTML = `
+    <div class="progress-row"><span>PAGE ${index+1} OF ${totalSteps}</span><span>${pct}% FILED</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+  `;
+}
+
+function navButtons(index, canAdvance){
+  const isFirst = index === 0;
+  const isLast = index === totalSteps - 1;
+  return `
+    ${window.__progressHTML}
+    <div class="nav-row">
+      <button class="ghost-btn" onclick="goBack()" ${isFirst?'disabled':''}>← Back</button>
+      <button class="primary" onclick="goNext()" ${canAdvance? '' : 'disabled'}>${isLast? 'See my posting →' : 'Next →'}</button>
+    </div>
+  `;
+}
+function goBack(){ if(step>0){ step--; render(); } else { step=-1; render(); } }
+function goNext(){ step++; render(); }
+
+/* ---------------- SCORING ---------------- */
+function computeScores(){
+  const scores = {};
+  Object.keys(DOMAINS).forEach(k=> scores[k]=0);
+  Object.entries(answers.stars).forEach(([k,v])=> scores[k]+=v);
+  answers.swipes.forEach((side, i)=>{
+    const swipe = SWIPES[i];
+    const bonus = side==='A' ? swipe.optA.bonus : swipe.optB.bonus;
+    bonus.forEach(k=> scores[k]+=1.2);
+  });
+  return scores;
+}
+
+function renderResults(){
+  const scores = computeScores();
+  const ranked = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const [topKey] = ranked[0];
+  const [secondKey] = ranked[1];
+
+  let topBlock = PROJECTS[topKey];
+  let topProjectList;
+  if(topKey === 'teaching'){
+    const pick = answers.teachingPick || 'vidya';
+    topProjectList = [topBlock.subs[pick]];
+  } else {
+    topProjectList = topBlock.projects;
+  }
+
+  let secondBlock = PROJECTS[secondKey];
+  let secondProjectList;
+  if(secondKey === 'teaching'){
+    const pick = answers.teachingPick || 'vidya';
+    secondProjectList = [secondBlock.subs[pick]];
+  } else {
+    secondProjectList = secondBlock.projects;
+  }
+
+  card.innerHTML = `
+    <div class="result-heading">YOUR SERVICE POSTING</div>
+    <div class="stamp-wrap">
+      <div class="stamp-badge">
+        <span class="s1">NSS · IITD</span>
+        <span class="s2">${DOMAINS[topKey].name}</span>
+        <span class="s3">APPROVED</span>
+      </div>
+    </div>
+    <p class="result-title">${topBlock.heading}</p>
+    <p class="result-desc">${topBlock.desc}</p>
+
+    ${topProjectList.map(p=>`
+      <div class="project-card">
+        <h3>${p.name}</h3>
+        <p>${p.desc}</p>
+        <div class="contact">📌 ${p.contact}</div>
+      </div>
+    `).join('')}
+
+    <div class="secondary-block">
+      <div class="label">Also worth a look — ${DOMAINS[secondKey].name}</div>
+      ${secondProjectList.map(p=>`
+        <div class="project-card" style="border-left-color:var(--marigold);">
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <div class="contact">📌 ${p.contact}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="footer-note">Do it like a pro, not a robot — quality over quantity, always.<br>Reach out to the secretary above, or ask any NSS senior to point you the right way.</div>
+    <div class="retake-row"><button onclick="resetQuiz()">↺ Retake the form</button></div>
+  `;
+}
+
+function resetQuiz(){
+  step = -1;
+  answers.stars = {};
+  answers.teachingPick = null;
+  answers.swipes = [];
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
